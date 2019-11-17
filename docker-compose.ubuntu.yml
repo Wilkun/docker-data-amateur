@@ -1,0 +1,40 @@
+version: "3.6"
+services:
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile_SQL
+      args:
+        - SA_PASSWORD=Pass@word2@
+        - ACCEPT_EULA=Y
+        - MSSQL_PID=Enterprise
+        - DB_PORT=1498
+    ports:
+      - 1498:1433
+    container_name: booking_db
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile_APP
+      args:
+        - CURRENT_CONFIG_FILE_NAME=config_ubuntu.json
+    tty: true
+    depends_on:
+      - "db"
+    command: --run_type=sb #sb=standby, all=all
+    container_name: booking_app 
+    volumes:
+      - vol_inandout_data:/app/vol_inandout_data
+  notebook:
+    build:
+      context: .
+      dockerfile: Dockerfile_Notebook
+      args:
+        - CURRENT_CONFIG_FILE_NAME=config_ubuntu.json
+    ports:
+        - 8888:8888
+    container_name: booking_notebook
+    volumes:
+      - vol_inandout_data:/home/jovyan/work/vol_inandout_data
+volumes:
+  vol_inandout_data:

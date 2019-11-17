@@ -1,0 +1,58 @@
+# Use an official Python runtime as a parent image
+FROM python:latest
+
+# Set the working directory to /app
+WORKDIR /app
+
+# Define build environment
+ARG DEBIAN_FRONTEND=noninteractive
+
+# handle SQL connection and selenium
+RUN apt-get update && \
+    pip install --upgrade pip && \
+    apt-get install --no-install-recommends -fy curl && apt-get clean && \
+    apt-get install --no-install-recommends -fy apt-transport-https && apt-get clean && \
+    curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    curl https://packages.microsoft.com/config/debian/9/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
+    apt-get update && \
+    ACCEPT_EULA=Y apt-get install --no-install-recommends -fy msodbcsql17 && \
+    ACCEPT_EULA=Y apt-get install --no-install-recommends -fy mssql-tools && \
+    apt-get install -fy --no-install-recommends unixodbc-dev && apt-get clean && \
+    apt-get install -fy --no-install-recommends gconf-service libasound2 libatk1.0-0 libcairo2 libcups2 libfontconfig1  libgdk-pixbuf2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libxss1 fonts-liberation libappindicator3-1 libnss3 lsb-release xdg-utils && apt-get clean && \
+    wget -O google-chrome-stable_current_amd64.deb https://www.slimjet.com/chrome/download-chrome.php?file=files/76.0.3809.100/google-chrome-stable_current_amd64.deb && \
+    dpkg -i google-chrome-stable_current_amd64.deb; apt-get -fy install && \
+    apt-get install --no-install-recommends -fy unzip && apt-get clean && \
+    wget https://chromedriver.storage.googleapis.com/76.0.3809.126/chromedriver_linux64.zip && \
+    unzip chromedriver_linux64.zip && \
+    apt-get install -fy --no-install-recommends gcc && \
+    apt-get install -fy --no-install-recommends musl-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy the current directory contents into the container at /app
+COPY requirements.txt /app
+
+# Install any needed packages specified in requirements.txt
+RUN pip install --trusted-host pypi.python.org -r requirements.txt
+
+# Copy all needed files into the container at /app
+# Please note that this is after initial configuration and package installation
+# so we can benefit from the caching and speed up* building / development
+COPY . /app
+
+# Make port 80 available to the world outside this container
+EXPOSE 80
+
+# Define environment variable
+ENV NAME World
+ENV IS_RUNNING_FROM_DOCKER Yes
+
+# Copy given config file
+ARG CURRENT_CONFIG_FILE_NAME
+COPY ./config/$CURRENT_CONFIG_FILE_NAME /app/current_config.json
+
+#CMD python wait_for_db.py && python script.py
+#CMD python script.py
+
+## Define entry point
+#if script should be started together with container
+ENTRYPOINT ["python", "script.py"]

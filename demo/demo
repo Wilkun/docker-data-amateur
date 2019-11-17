@@ -1,0 +1,177 @@
+### Demo 2
+
+
+
+
+### clean up before running the next demo!!
+### to make demo easier the port is hardcoded
+docker rm db_sql_manual_demo --force
+docker rm db_app_manual_demo_1 --force
+docker rm db_app_manual_demo_2 --force
+docker rm db_notebook_manual_demo_1 --force
+docker rm db_notebook_manual_demo_2 --force
+docker system prune -f
+
+
+
+
+# make sure you are in the right place..
+cd /c/narnia/projects/docker-data-amateur/
+
+
+
+
+### Build new image for SQL DB
+docker build \
+    --tag db_sql_manual \
+    --file Dockerfile_SQL \
+    --build-arg SA_PASSWORD=Pass@word2@ \
+    --build-arg ACCEPT_EULA=Y \
+    --build-arg MSSQL_PID=Enterprise \
+    --build-arg DB_PORT=1498 \
+    .
+    
+
+
+
+### Build image for app
+### Takes more time to build from the beginning
+docker build \
+    --tag db_app_manual \
+    --file Dockerfile_APP \
+    --build-arg CURRENT_CONFIG_FILE_NAME=config_demo.json \
+    .
+
+
+
+
+### Build new image for Notebook
+### Takes more time to build from the beginning
+docker build \
+    --tag db_notebook_manual \
+    --file Dockerfile_NotebookManual \
+    .
+
+
+
+
+### List images
+docker image ls
+
+
+
+
+# run container for our sql server and see that the structure is there
+docker run \
+    -d \
+    -p 1498:1433 \
+    --name db_sql_manual_demo \
+    db_sql_manual
+
+
+
+
+### run container for our notebook
+docker run \
+    -p 8890:8888 \
+    --name db_notebook_manual_demo_1 \
+    db_notebook_manual
+
+
+
+
+
+### or run with detach and check token with logs
+docker run \
+    -p 8891:8888 \
+    -d \
+    --name db_notebook_manual_demo_2 \
+    db_notebook_manual
+
+docker logs db_notebook_manual_demo_2
+
+
+
+
+# run cotainer for our app
+### run without detached mode to see it's running
+### it - interactive mode
+docker run \
+    -it \
+    --name db_app_manual_demo_1 \
+    db_app_manual
+
+
+
+
+
+docker run \
+    -d \
+    -it \
+    --name db_app_manual_demo_2 \
+    db_app_manual
+
+docker logs db_app_manual_demo_2
+
+
+
+
+
+### clean up before running the next demo!!
+### to make demo easier the port is hardcoded
+docker rm db_sql_manual_demo --force
+docker rm db_app_manual_demo_1 --force
+docker rm db_app_manual_demo_2 --force
+docker rm db_notebook_manual_demo_1 --force
+docker rm db_notebook_manual_demo_2 --force
+docker system prune -f
+
+
+
+
+#### create images based on docker compose
+#### from scratch around 7 minutes
+#### rebuild seconds
+docker-compose -f docker-compose.dtoolbox.yml build
+
+
+
+
+#### run all containers with docker compose
+docker-compose -f docker-compose.dtoolbox.yml up
+
+
+
+
+#### run all containers with docker compose (detach mode)
+docker-compose -f docker-compose.dtoolbox.yml -d up
+
+
+
+
+### you can also list, start, stop, remove
+# 1. Check list
+docker-compose -f docker-compose.dtoolbox.yml ps
+
+
+
+
+
+# 2. Remove
+docker-compose -f docker-compose.dtoolbox.yml rm -fs
+
+
+
+
+# 3. Check list
+docker-compose -f docker-compose.dtoolbox.yml ps
+
+
+
+
+### let's see the outcome
+### we won't run and wait for the app to gather data
+### use the backup on another container or use the previously generated file
+### use  main_sql
+# http://sdrzymala.pythonanywhere.com/share/Warsaw.html
+# http://sdrzymala.pythonanywhere.com/share/Katowice.html

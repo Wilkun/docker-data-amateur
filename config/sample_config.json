@@ -1,0 +1,74 @@
+{
+    "tech":
+    {
+        "google_api_key" : "{your api key}",
+        "log_path" : "./log/myapp.log",
+        "selenium_driver_path" : "E:\\Tools\\selenium_drivers\\chromedriver.exe",
+        "db_connectionstring" : "DRIVER={ODBC Driver 17 for SQL Server};SERVER={your server address},1498;DATABASE=Booking;UID=sa;PWD={your password}"
+    },
+    "general":
+    {
+        "currency" : "PLN",
+        "language" : "en-us"
+    },
+    "analysis":
+    {
+        "price_per_person_per_night_limit" : 130,
+        "walking_distance_limit_meters" : 2500
+    },
+    "search":
+    [
+        {
+            "destination_city" : "Katowice", 
+            "destination_country" : "Poland", 
+            "check_in_date" : "2019-09-02",
+            "check_out_date" : "2019-09-03",
+            "no_adults" : 1,
+            "no_childrens" : 0,
+            "no_rooms" : 1,
+            "is_business_trip" : true,
+            "get_only_avaliable" : true,
+            "use_dynamic_dates": true,
+            "dynamic_dates":
+            {
+                "starting_date_index" : 0,
+                "length_of_stay" : 3
+            },
+            "no_pages_limit": 2
+        },
+        {
+            "destination_city" : "Katowice", 
+            "destination_country" : "Poland", 
+            "check_in_date" : "2019-09-02",
+            "check_out_date" : "2019-09-03",
+            "no_adults" : 1,
+            "no_childrens" : 0,
+            "no_rooms" : 1,
+            "is_business_trip" : true,
+            "get_only_avaliable" : true,
+            "use_dynamic_dates": true,
+            "dynamic_dates":
+            {
+                "starting_date_index" : 7,
+                "length_of_stay" : 3
+            },
+            "no_pages_limit": -1
+        }
+    ]
+    ,
+    "calculate_distance":
+    {
+        "calculate_distance" : true,
+        "destinations" :
+        [
+            {
+                "destination_city" : "Katowice", 
+                "destination_country" : "Poland", 
+                "destination_name" : "Office location in Katowice",
+                "destination_long" : "19.026649",
+                "destination_lat" : "50.249938", 
+                "force_recalculate" : false
+            }
+        ]
+    }    
+}

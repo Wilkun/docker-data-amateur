@@ -1,0 +1,40 @@
+# Select image
+FROM jupyter/datascience-notebook
+
+USER root
+
+# handle odbc and sql server connection
+RUN apt-get update && \
+    pip install --upgrade pip && \
+    apt-get install --no-install-recommends -fy curl && \
+    apt-get clean && \
+    apt-get install --no-install-recommends -fy apt-transport-https && \
+    apt-get clean && \
+    apt-get update && apt-get install -y gnupg2 && \
+    curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
+    apt-get update && \
+    sudo ACCEPT_EULA=Y apt-get install -fy msodbcsql17 && \
+    sudo ACCEPT_EULA=Y apt-get install -fy --no-install-recommends unixodbc-dev && \
+    apt-get clean
+
+# install additional python libraries
+RUN conda install --override-channels -c conda-forge --quiet --yes \
+    jupyter_contrib_nbextensions \
+    pyodbc=4.0.27 \
+    gmaps \
+    plotly=4.1.1 \
+    shapely=1.6.4 \
+    && conda clean -a
+
+# Copy notebooks
+COPY ./notebooks/ /home/jovyan/work
+
+ENV PYTHONUNBUFFERED=1
+
+# Copy given config file
+ARG CURRENT_CONFIG_FILE_NAME
+COPY ./config/$CURRENT_CONFIG_FILE_NAME /home/jovyan/work/current_config.json
+
+# Run notebook using jupyter nbconvert
+#CMD python "/home/jovyan/work/execute_notebooks.py"

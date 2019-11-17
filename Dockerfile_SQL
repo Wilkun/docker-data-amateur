@@ -1,0 +1,23 @@
+# Select image
+FROM microsoft/mssql-server-linux:latest
+  
+# Copy script to container
+COPY ./sql/create.sql .
+
+# Set up variables / parameters
+ARG SA_PASSWORD
+ARG ACCEPT_EULA
+ARG MSSQL_PID
+ARG DB_PORT
+
+# Create database and tables / during image creation
+RUN ( /opt/mssql/bin/sqlservr --accept-eula & ) | grep -q "Service Broker manager has started" \
+    && /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P $SA_PASSWORD -i ./create.sql \
+    && pkill sqlservr
+
+# Make port 80 available to the world outside this container
+EXPOSE 1433
+
+# Create database and tables / during container creation
+#CMD ( /opt/mssql/bin/sqlservr --accept-eula & ) | grep -q "Service Broker manager has started" \
+#    && /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P $SA_PASSWORD -i ./create.sql
